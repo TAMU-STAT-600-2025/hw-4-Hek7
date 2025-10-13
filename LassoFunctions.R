@@ -3,8 +3,10 @@
 # Y - n x 1 response vector
 standardizeXY <- function(X, Y){
   # [ToDo] Center Y
+  Y <- matrix(Y)
+  
   Ymean <- mean(Y)
-  Ytilde <- Y - y_mean
+  Ytilde <- Y - Ymean
   
   # [ToDo] Center and scale X
   Xmeans <- colMeans(X)
@@ -192,6 +194,9 @@ fitLASSOstandardized_seq <- function(Xtilde, Ytilde, lambda_seq = NULL, n_lambda
 # n_lambda - length of desired tuning parameter sequence, is only used when the tuning sequence is not supplied by the user
 # eps - precision level for convergence assessment, default 0.001
 fitLASSO <- function(X ,Y, lambda_seq = NULL, n_lambda = 60, eps = 0.001){
+  
+  Y <- matrix(Y)
+  
   # [ToDo] Center and standardize X,Y based on standardizeXY function
   standardized <- standardizeXY(X, Y)
   Xtilde <- standardized$Xtilde
