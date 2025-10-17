@@ -41,7 +41,7 @@ lasso <- function(Xtilde, Ytilde, beta, lambda){
   n = nrow(Xtilde)
   
   # Calculate objective
-  fobj = ((2*n)^(-1)) * norm(Ytilde - Xtilde%*%beta, type = c("2"))^2 + lambda*sum(abs(beta))
+  fobj = ((2*n)^(-1)) * sum((Ytilde - Xtilde%*%beta)^2) + lambda*sum(abs(beta))
 }
 
 # [ToDo] Fit LASSO on standardized data for a given lambda
@@ -53,6 +53,8 @@ lasso <- function(Xtilde, Ytilde, beta, lambda){
 fitLASSOstandardized <- function(Xtilde, Ytilde, lambda, beta_start = NULL, eps = 0.001){
   #[ToDo]  Check that n is the same between Xtilde and Ytilde
   
+  Xtilde <- as.matrix(Xtilde)
+  Ytilde <- as.matrix(Ytilde)
   
   if (nrow(Xtilde) != nrow(Ytilde)){
     stop("rows in ytilde and xtilde not equal")
@@ -88,10 +90,22 @@ fitLASSOstandardized <- function(Xtilde, Ytilde, lambda, beta_start = NULL, eps 
   fobj_old <- lasso(Xtilde, Ytilde, beta, lambda)
   converged <- FALSE
   
+  # Store init res 
+  r <- Ytilde - Xtilde %*% beta
+  
   while(!converged){
     for(j in 1:p){
-      r_j <- Ytilde - Xtilde[, -j, drop = FALSE] %*% beta[-j]
-      beta[j] <- soft((1/n) * crossprod(Xtilde[, j], r_j), lambda)
+      # add current contribution of j residual
+      r <- r + Xtilde[, j] * beta[j]
+      
+      # this is a much smaller quantity to compute
+      r_j <- crossprod(Xtilde[, j], r) / n
+      
+      new_beta_j <- soft(as.numeric(r_j), lambda)
+      beta[j] <- as.numeric(new_beta_j)
+      
+      # update the res with the new beta should get smaller in norm 
+      r <- r - Xtilde[, j] * new_beta_j
     }
     
     # new obj
