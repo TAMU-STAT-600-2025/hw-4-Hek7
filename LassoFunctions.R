@@ -260,6 +260,9 @@ fitLASSO <- function(X ,Y, lambda_seq = NULL, n_lambda = 60, eps = 0.001){
 cvLASSO <- function(X ,Y, lambda_seq = NULL, n_lambda = 60, k = 5, fold_ids = NULL, eps = 0.001){
   n <- nrow(X)
   
+  X <- as.matrix(X)
+  Y <- as.matrix(Y)
+  
   # [ToDo] Fit Lasso on original data using fitLASSO
   fit_orig <- fitLASSO(X, Y, lambda_seq = lambda_seq, n_lambda = n_lambda, eps = eps)
   
